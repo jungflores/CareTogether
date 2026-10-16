@@ -1,0 +1,14 @@
+using System.Net.Http.Headers; using System.Net.Http.Json; using System.Text.Json;
+namespace CareTogether.Mobile;
+public sealed class ApiClient
+{
+ private readonly HttpClient _http; public string BaseUrl=>_http.BaseAddress!.ToString().TrimEnd('/'); public string? Token {get;private set;} public string? DisplayName {get;private set;} public Guid? UserId {get;private set;} public ApiClient(string baseUrl)=>_http=new(){BaseAddress=new(baseUrl),Timeout=TimeSpan.FromSeconds(20)};
+ public async Task<bool> LoginAsync(string email,string password) { var r=await _http.PostAsJsonAsync("api/auth/login",new{email,password}); if(!r.IsSuccessStatusCode)return false; ApplyAuth(await r.Content.ReadFromJsonAsync<JsonElement>());return true; }
+ public async Task RegisterAsync(string displayName,string email,string password) { var r=await _http.PostAsJsonAsync("api/auth/register",new{email,password,displayName,role=3});if(!r.IsSuccessStatusCode){var detail=await r.Content.ReadAsStringAsync();throw new HttpRequestException(string.IsNullOrWhiteSpace(detail)?$"The server returned {(int)r.StatusCode} {r.ReasonPhrase}.":detail);}ApplyAuth(await r.Content.ReadFromJsonAsync<JsonElement>()); }
+ void ApplyAuth(JsonElement doc){Token=doc.GetProperty("accessToken").GetString();DisplayName=doc.GetProperty("displayName").GetString();UserId=doc.GetProperty("userId").GetGuid();_http.DefaultRequestHeaders.Authorization=new AuthenticationHeaderValue("Bearer",Token);}
+ public void Logout() { Token=null; DisplayName=null; UserId=null; _http.DefaultRequestHeaders.Authorization=null; }
+ public Task<JsonElement> GetAsync(string path)=>_http.GetFromJsonAsync<JsonElement>(path);
+ public async Task<JsonElement> PostAsync(string path,object value) { var r=await _http.PostAsJsonAsync(path,value); if(!r.IsSuccessStatusCode){var detail=await r.Content.ReadAsStringAsync();throw new HttpRequestException(string.IsNullOrWhiteSpace(detail)?$"The server returned {(int)r.StatusCode} {r.ReasonPhrase}.":detail);} return await r.Content.ReadFromJsonAsync<JsonElement>(); }
+ public async Task<JsonElement> PutAsync(string path,object value) { var r=await _http.PutAsJsonAsync(path,value); if(!r.IsSuccessStatusCode){var detail=await r.Content.ReadAsStringAsync();throw new HttpRequestException(string.IsNullOrWhiteSpace(detail)?$"The server returned {(int)r.StatusCode} {r.ReasonPhrase}.":detail);} return await r.Content.ReadFromJsonAsync<JsonElement>(); }
+ public async Task<JsonElement> DeleteAsync(string path) { var r=await _http.DeleteAsync(path); if(!r.IsSuccessStatusCode){var detail=await r.Content.ReadAsStringAsync();throw new HttpRequestException(string.IsNullOrWhiteSpace(detail)?$"The server returned {(int)r.StatusCode} {r.ReasonPhrase}.":detail);} return await r.Content.ReadFromJsonAsync<JsonElement>(); }
+}

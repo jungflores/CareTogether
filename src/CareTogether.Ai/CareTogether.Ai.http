@@ -1,0 +1,6 @@
+@CareTogether.Ai_HostAddress = http://localhost:0
+
+GET {{CareTogether.Ai_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

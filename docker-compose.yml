@@ -1,0 +1,42 @@
+name: caretogether
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${DB_PASSWORD:-CareTogether!2026}"
+    ports: ["1433:1433"]
+    volumes: ["sqlserver-2022-data:/var/opt/mssql"]
+    healthcheck: { test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$${MSSQL_SA_PASSWORD}\" -C -Q 'SELECT 1' || exit 1"], interval: 10s, timeout: 5s, retries: 20 }
+  api:
+    build: { context: ., dockerfile: src/CareTogether.Api/Dockerfile }
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__CareTogether: "Server=sqlserver,1433;Database=CareTogether;User Id=sa;Password=${DB_PASSWORD:-CareTogether!2026};TrustServerCertificate=True"
+      Jwt__Key: "${JWT_KEY:-development-only-key-change-me-32-chars}"
+      Jwt__Issuer: CareTogether
+      Jwt__Audience: CareTogether.Mobile
+      Invitations__PublicBaseUrl: "${INVITATION_PUBLIC_URL:-http://192.168.1.184:8080}"
+      Smtp__Host: "${SMTP_HOST:-}"
+      Smtp__Port: "${SMTP_PORT:-587}"
+      Smtp__UseSsl: "${SMTP_USE_SSL:-true}"
+      Smtp__From: "${SMTP_FROM:-noreply@caretogether.local}"
+      Smtp__Username: "${SMTP_USERNAME:-}"
+      Smtp__Password: "${SMTP_PASSWORD:-}"
+      Twilio__AccountSid: "${TWILIO_ACCOUNT_SID:-}"
+      Twilio__AuthToken: "${TWILIO_AUTH_TOKEN:-}"
+      Twilio__FromPhone: "${TWILIO_FROM_PHONE:-}"
+      Ai__BaseUrl: "http://ai:8080"
+    ports: ["8080:8080"]
+    depends_on: { sqlserver: { condition: service_healthy }, ai: { condition: service_started } }
+  ai:
+    build: { context: ., dockerfile: src/CareTogether.Ai/Dockerfile }
+    environment: { ASPNETCORE_URLS: "http://+:8080" }
+    ports: ["8081:8080"]
+  worker:
+    build: { context: ., dockerfile: src/CareTogether.Worker/Dockerfile }
+    environment:
+      ConnectionStrings__CareTogether: "Server=sqlserver,1433;Database=CareTogether;User Id=sa;Password=${DB_PASSWORD:-CareTogether!2026};TrustServerCertificate=True"
+    depends_on: { api: { condition: service_started } }
+volumes: { sqlserver-2022-data: {} }
