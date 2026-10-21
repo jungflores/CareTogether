@@ -77,7 +77,7 @@ public abstract class CarePage : ContentPage
         if(Api.Token is not null)
         {
             var actions=new HorizontalStackLayout{Spacing=8};
-            if(this is not CareChatPage){var ask=HeaderAction("🪄","Ask","Ask CareTogether");ask.Button.Clicked+=async(_,_)=>await Navigation.PushAsync(new CareChatPage(Api));actions.Add(ask.View);}
+            if(this is not CareChatPage){var ask=HeaderAction("🪄","Ask","Ask CareTogether");ask.Button.Clicked+=async(_,_)=>await Navigation.PushAsync(new CareChatPage(Api,AssistantContext()));actions.Add(ask.View);}
             var exit=HeaderAction("🚪","Exit","Sign out");exit.Button.Clicked+=async(_,_)=>await SignOutAsync();actions.Add(exit.View);Header.Add(actions,3,0);
         }
         if (trailing is not null) Header.Add(trailing, 2, 0);
@@ -91,6 +91,11 @@ public abstract class CarePage : ContentPage
         Content = PageLayout;
     }
     protected void AddLink(string icon, string title, string detail, Page page, Color? tint = null) { var c = CareTheme.Card(CareTheme.Row(icon, title, detail, tint)); c.GestureRecognizers.Add(CareTheme.Tap(() => Navigation.PushAsync(page))); Body.Add(c); }
+    string AssistantContext()
+    {
+        var page=GetType().Name.ToLowerInvariant();
+        if(page.Contains("task"))return "tasks";if(page.Contains("medication"))return "medications";if(page.Contains("appointment"))return "appointments";if(page.Contains("journal"))return "journal";if(page.Contains("health"))return "health";if(page.Contains("handoff"))return "handoffs";if(page.Contains("grocery"))return "shopping";if(page.Contains("conversation")||page.Contains("chat"))return "messages";if(page.Contains("document"))return "documents";if(page.Contains("emergency"))return "emergency";if(page.Contains("dashboard"))return "today";return string.IsNullOrWhiteSpace(Title)?"general":Title.ToLowerInvariant();
+    }
     static (VerticalStackLayout View,ImageButton Button) HeaderAction(string glyph,string labelText,string description)
     {
         var button=new ImageButton{Source=new FontImageSource{Glyph=glyph,Size=21},BackgroundColor=Colors.Transparent,Padding=2,HeightRequest=28,WidthRequest=34,Aspect=Aspect.AspectFit,AutomationId=description};ToolTipProperties.SetText(button,description);SemanticProperties.SetDescription(button,description);var label=CareTheme.Text(labelText,10,true,CareTheme.Muted);label.HorizontalTextAlignment=TextAlignment.Center;return(new VerticalStackLayout{Spacing=0,HorizontalOptions=LayoutOptions.Center,Children={button,label}},button);

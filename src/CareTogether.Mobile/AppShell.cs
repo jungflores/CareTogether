@@ -20,6 +20,7 @@ public sealed class MorePage : CarePage
         AddLink("📓", "Care Journal", "Notes and observations", new LiveJournalPage(api));
         AddLink("❤️", "Health Tracking", "Blood pressure, weight and glucose", new LiveHealthPage(api)); AddLink("📁", "Documents", "Medical, insurance and legal", new LiveDocumentsPage(api));
         AddLink("💬", "Messages", "Care Circle conversations", new LiveConversationsPage(api)); AddLink("🔄", "Care Handoff", "Transfer care responsibility", new LiveHandoffsPage(api));
+        AddLink("🛒", "Shopping & Groceries", "Items needed by care recipients", new LiveGroceryPage(api));
         AddLink("🆘", "Emergency", "Contacts, doctor and hospital", new LiveEmergencyPage(api), Color.FromArgb("#FFE0E1")); AddLink("⚙️", "Settings", "Preferences and privacy", new ProfilePage(api));
     }
 }

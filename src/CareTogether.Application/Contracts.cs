@@ -21,8 +21,14 @@ public record CreateDocumentRequest(Guid CareCircleId, string Name, string Categ
 public record CreateEmergencyContactRequest(Guid CareCircleId, string Name, string Relationship, string Phone, bool IsPrimary);
 public record CreateConversationRequest(Guid CareCircleId, string Title);
 public record SendMessageRequest(Guid ConversationId, string Body);
-public record CreateHandoffRequest(Guid CareCircleId, Guid ToUserId, string Summary, string? Risks, string? NextSteps, bool Send = true);
-public record UpdateHandoffRequest(Guid ToUserId, string Summary, string? Risks, string? NextSteps, bool Send = true);
+public record CreateHandoffRequest(Guid CareCircleId, Guid ToUserId, string Summary, string? Risks, string? NextSteps, bool Send = true, DateTimeOffset? CoverageStartsAt = null, DateTimeOffset? CoverageEndsAt = null, Guid? CarriedForwardFromId = null);
+public record UpdateHandoffRequest(Guid ToUserId, string Summary, string? Risks, string? NextSteps, bool Send = true, DateTimeOffset? CoverageStartsAt = null, DateTimeOffset? CoverageEndsAt = null);
+public record AcceptHandoffRequest(bool MedicationReviewed, bool SafetyReviewed, bool ScheduleReviewed, bool EmergencyPlanReviewed, bool InstructionsReviewed);
+public record CompleteHandoffRequest(string? CompletionNotes, string? UnresolvedItems);
+public record CarryForwardHandoffRequest(Guid? ToUserId = null, DateTimeOffset? CoverageStartsAt = null, DateTimeOffset? CoverageEndsAt = null);
+public record CreateGroceryItemRequest(Guid CareCircleId, string Name, string? Quantity, string? Notes, DateOnly NeededBy, Guid? AssignedToUserId);
+public record UpdateGroceryItemRequest(Guid CareCircleId, string Name, string? Quantity, string? Notes, DateOnly NeededBy, Guid? AssignedToUserId);
+public record ReassignGroceryItemRequest(Guid? AssignedToUserId);
 public record AiSummaryRequest(Guid CareCircleId, string Context);
 public record AiSummaryResponse(string Summary, IReadOnlyList<string> SuggestedActions, string Disclaimer);
 public record ChatQuestionRequest(Guid? CareCircleId, string Question, DateTimeOffset? ClientNow = null);

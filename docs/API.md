@@ -18,5 +18,11 @@ All care endpoints require `Authorization: Bearer <access-token>`. Queries are r
 | POST | `/api/messages` | Send message |
 | GET/POST | `/api/handoffs` | List/create handoffs |
 | PUT | `/api/handoffs/{id}/accept` | Accept responsibility |
+| GET/POST | `/api/groceries` | List/add recipient grocery items |
+| GET/PUT/DELETE | `/api/groceries/{id}` | View, edit, reassign, or remove an item |
+| PUT | `/api/groceries/{id}/accept` | Accept a pending grocery assignment |
+| PUT | `/api/groceries/{id}/decline` | Decline a pending grocery assignment |
+| PUT | `/api/groceries/{id}/reassign` | Assign an item to another active care-circle member |
+| PUT | `/api/groceries/{id}/toggle-purchased` | Mark an item purchased or restore it |
 | POST | AI `/api/ai/care-summary` | Draft reviewed summary |
 | POST | AI `/api/ai/handoff-draft` | Draft handoff fields |

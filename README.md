@@ -66,7 +66,7 @@ TOKEN=$(curl -s http://localhost:8080/api/auth/login \
 curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/dashboard
 ```
 
-Other authenticated resources are under `/api/tasks`, `/api/medications`, `/api/appointments`, `/api/conversations`, `/api/messages`, and `/api/handoffs`.
+Other authenticated resources are under `/api/tasks`, `/api/medications`, `/api/appointments`, `/api/conversations`, `/api/messages`, `/api/handoffs`, and `/api/groceries`.
 
 ## Database migrations
 
